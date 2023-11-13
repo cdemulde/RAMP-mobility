@@ -48,30 +48,30 @@ and naming further input files with corresponding country code
 
 charging = True         # True or False to select to activate the calculation of the charging profiles 
 write_variables = True  # Choose to write variables to csv
-full_year = False       # Choose if simulating the whole year (True) or not (False), if False, the console will ask how many days should be simulated.
+full_year = True       # Choose if simulating the whole year (True) or not (False), if False, the console will ask how many days should be simulated.
 
-countries = ['AT', 'BE', 'BG', 'CH', 'CZ', 'DE', 'DK', 'EE', 'EL', 'ES', 'FI', 'FR', 'HR', 'HU',
-    'IE', 'IT','LT', 'LU','LV', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK', 'UK']
+countries = ['BE']
+#['AT', 'BE', 'BG', 'CH', 'CZ', 'DE', 'DK', 'EE', 'EL', 'ES', 'FI', 'FR', 'HR', 'HU', 'IE', 'IT','LT', 'LU','LV', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK', 'UK']
 
 for c in countries:
     # Define folder where results are saved, it will be:
     # "results/inputfile/simulation_name" leave simulation_name False (or "")
     # to avoid the creation of the additional folder
     inputfile = f'Europe/{c}'
-    simulation_name = ''
+    simulation_name = '135chargingstations'
     
     # Define country and year to be considered when generating profiles
     country = f'{c}'
-    year = 2016
+    year = 2022
     
     # Define attributes for the charging profiles
     charging_mode = 'Uncontrolled' # Select charging mode (Uncontrolled', 'Night Charge', 'RES Integration', 'Perfect Foresight')
     logistic = False # Select the use of a logistic curve to model the probability of charging based on the SOC of the car
-    infr_prob = 0.8 # Probability of finding the infrastructure when parking ('piecewise', number between 0 and 1)
-    Ch_stations = ([3.7, 11, 120], [0.6, 0.3, 0.1]) # Define nominal power of charging stations and their probability 
+    infr_prob = 1.0 # Probability of finding the infrastructure when parking ('piecewise', number between 0 and 1)
+    Ch_stations = ([3.7, 11, 120], [0.0, 1.0, 0.0]) # Define nominal power of charging stations and their probability
     
     #inputfile for the temperature data: 
-    inputfile_temp = r"..\database\temp_ninja_pop_1980-2019.csv"
+    inputfile_temp = "../database/temperature_data_2022_1h.csv"
     
     ## If simulating the RES Integration charging strategy, a file with the residual load curve should be included in the folder
     try:
@@ -94,8 +94,8 @@ for c in countries:
     Profiles_user = pp.Profiles_user_formatting(Profiles_user_list)
     
     # If more than one daily profile is generated, also cloud plots are shown
-    if len(Profiles_list) > 1:
-        pp.Profile_cloud_plot(Profiles_list, Profiles_avg)
+    # if len(Profiles_list) > 1:
+    #     pp.Profile_cloud_plot(Profiles_list, Profiles_avg)
     
     # Create a dataframe with the profile
     Profiles_df = pp.Profile_dataframe(Profiles_series, year) 
@@ -106,8 +106,8 @@ for c in countries:
     Usage_utc = pp.Time_correction(Usage_df, country, year)    
     
     # By default, profiles and usage are plotted as a DataFrame
-    pp.Profile_df_plot(Profiles_df, start = '01-01 00:00:00', end = '12-31 23:59:00', year = year, country = country)
-    pp.Usage_df_plot(Usage_utc, start = '01-01 00:00:00', end = '12-31 23:59:00', year = year, country = country, User_list = User_list)
+    #pp.Profile_df_plot(Profiles_df, start = '01-01 00:00:00', end = '12-31 23:59:00', year = year, country = country)
+    #pp.Usage_df_plot(Usage_utc, start = '01-01 00:00:00', end = '12-31 23:59:00', year = year, country = country, User_list = User_list)
     
     # Add temperature correction to the Power Profiles 
     # To be done after the UTC correction because the source data for Temperatures have time in UTC
@@ -144,6 +144,8 @@ for c in countries:
         pp.export_csv('Charging Profiles', Charging_profiles_utc, inputfile, simulation_name)
     
         # Plot the charging profile
-        pp.Charging_Profile_df_plot(Charging_profiles_utc, color = 'green', start = '01-01 00:00:00', end = '12-31 23:59:00', year = year, country = country)
+        ax = pp.Charging_Profile_df_plot(Charging_profiles_utc, color='green', start='01-01 00:00:00',
+                                         end='12-31 23:59:00', year=year, country=country)
+        ax.figure.savefig(f'./charging profiles {simulation_name}')
                 
     print('\nExecution Time:', datetime.now() - startTime)

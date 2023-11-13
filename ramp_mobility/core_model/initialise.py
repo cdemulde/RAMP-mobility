@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #%% Initialisation of a model instance
-
+import sys
 import importlib
 import datetime
 import calendar
@@ -76,8 +76,7 @@ def user_defined_inputs(inputfile):
     '''
     inputfile_module = inputfile.replace('/', '.')
     
-    file_module = importlib.import_module(f'country_input_files.{inputfile_module}')
-    
+    file_module = importlib.import_module(f'ramp_mobility.country_input_files.{inputfile_module}')
 
     User_list = file_module.User_list
         

@@ -4,8 +4,11 @@
 '''
 Input data definition 
 '''
+import os
+import pkg_resources
 
 from ramp_mobility.core_model.core import User
+from ramp_mobility.utils import get_csv_data
 import numpy as np
 import pandas as pd
 import copy
@@ -64,49 +67,13 @@ country_dict = {'AT':'DE', 'CH':'DE', 'CZ':'DE', 'DK':'DE', 'FI':'DE', 'HU':'DE'
                 'IE':'UK',
                 'BG':'PL', 'CY':'PL', 'EE':'PL', 'LT':'PL', 'LV':'PL', 'RO':'PL'}
 
-#%% Files with the inputs to be loaded 
-
-inputfolder = r"../database/"
-
 # Selection of the equivalent country from the dictionary defined above
 if country in set(country_dict.values()):
     country_equivalent = country 
 else:
     country_equivalent = country_dict[country]
 
-#Composition of the population by percentage share
-pop_file =  inputfolder + "pop_share.csv" 
-pop_data = pd.read_csv(pop_file, header = 0, index_col = 0)
-
-#Share of the type of vehicles in the country
-vehicle_file =  inputfolder + "vehicle_share.csv" 
-vehicle_data = pd.read_csv(vehicle_file, header = 0, index_col = 0)
-
-# Total daily distance [km]
-d_tot_file =  inputfolder + "d_tot.csv" 
-d_tot_data = pd.read_csv(d_tot_file, header = 0, index_col = 0)
-
-# Distance by trip [km]
-d_min_file =  inputfolder + "d_min.csv" 
-d_min_data = pd.read_csv(d_min_file, header = 0, index_col = [0,1])
-
-# Functioning time by trip [min]
-t_func_file =  inputfolder + "t_func.csv" 
-t_func_data = pd.read_csv(t_func_file, header = 0, index_col = [0,1])
-
-# Functioning windows 
-window_file =  inputfolder + "windows.csv" 
-window_data = pd.read_csv(window_file, header = [0,1], index_col = [0,1,2])
-window_data = window_data*60
-window_data = window_data.astype(int)
-
-#Trips distribution by time 
-trips = {}
-for day in ['weekday', 'saturday', 'sunday']:    
-    file =  inputfolder + f"trips_by_time_{day}.csv" 
-    trips[day] = pd.read_csv(file, header = 0)
-    trips[day] = trips[day][country_equivalent]/100
-
+pop_data, vehicle_data, d_tot_data, d_min_data, t_func_data, window_data, trips = get_csv_data(country_equivalent)
 #%%
 
 #Composition of the population by percentage share
