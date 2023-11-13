@@ -4,6 +4,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pkg_resources
 import pytz
 import copy
 import matplotlib.ticker as mtick
@@ -234,8 +235,8 @@ def Usage_dataframe(Profiles_series, year):
     return Profiles_df
 
 def temp_import(country, year, inputfile_temp = r"..\database\temp_ninja_pop.csv"):
-      
-    temp_profile = pd.read_csv(inputfile_temp, index_col = 0)
+    stream = pkg_resources.resource_stream(__name__, inputfile_temp)
+    temp_profile = pd.read_csv(stream, index_col = 0)
     temp_profile = pd.DataFrame(temp_profile[country]) 
     
     last_date = dt.datetime.fromisoformat(temp_profile.index[-1])

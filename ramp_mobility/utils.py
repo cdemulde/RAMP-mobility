@@ -8,10 +8,52 @@ Created on Tue Sep 15 14:55:52 2020
    
 import numpy as np
 import pandas as pd
+import pkg_resources
 import pytz
 
 #%% Functions
- 
+
+def get_csv_data(country_equivalent):
+    # %% Files with the inputs to be loaded
+    inputfolder = r"database/"
+
+    # Composition of the population by percentage share
+    stream = pkg_resources.resource_stream(__name__, inputfolder + "pop_share.csv")
+    pop_data = pd.read_csv(stream, header=0, index_col=0)
+
+    # Share of the type of vehicles in the country
+    stream = pkg_resources.resource_stream(__name__, inputfolder + "vehicle_share.csv")
+    vehicle_data = pd.read_csv(stream, header=0, index_col=0)
+
+    # Total daily distance [km]
+    stream = pkg_resources.resource_stream(__name__, inputfolder + "d_tot.csv")
+    d_tot_data = pd.read_csv(stream, header=0, index_col=0)
+
+    # Distance by trip [km]
+    stream = pkg_resources.resource_stream(__name__, inputfolder + "d_min.csv")
+    d_min_data = pd.read_csv(stream, header=0, index_col=[0, 1])
+
+    # Functioning time by trip [min]
+    stream = pkg_resources.resource_stream(__name__, inputfolder + "t_func.csv")
+    t_func_data = pd.read_csv(stream, header=0, index_col=[0, 1])
+
+    # Functioning windows
+    stream = pkg_resources.resource_stream(__name__, inputfolder + "windows.csv")
+    window_data = pd.read_csv(stream, header=[0, 1], index_col=[0, 1, 2])
+    window_data = window_data * 60
+    window_data = window_data.astype(int)
+
+    # Trips distribution by time
+    trips = {}
+    for day in ['weekday', 'saturday', 'sunday']:
+        file = inputfolder + f"trips_by_time_{day}.csv"
+        stream = pkg_resources.resource_stream(__name__, file)
+        trips[day] = pd.read_csv(stream, header=0)
+        trips[day] = trips[day][country_equivalent] / 100
+
+    return pop_data, vehicle_data, d_tot_data, d_min_data, t_func_data, window_data, trips
+
+
 def charge_prob(SOC):
     
     k = 15
